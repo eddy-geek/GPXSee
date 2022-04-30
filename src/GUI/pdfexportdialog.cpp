@@ -18,6 +18,11 @@ PDFExportDialog::PDFExportDialog(PDFExport &exp, Units units, QWidget *parent)
 {
 	int index;
 
+#ifdef Q_OS_ANDROID
+	setWindowFlags(Qt::Window);
+	setWindowState(Qt::WindowFullScreen);
+#endif /* Q_OS_ANDROID */
+
 	_fileSelect = new FileSelectWidget();
 	_fileSelect->setFilter(tr("PDF files") + " (*.pdf);;" + tr("All files")
 	  + " (*)");

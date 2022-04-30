@@ -13,7 +13,8 @@ QT += core \
     concurrent \
     widgets \
     printsupport \
-    positioning
+    positioning \
+    svg
 greaterThan(QT_MAJOR_VERSION, 5) {
     QT += openglwidgets \
           core5compat
@@ -523,4 +524,13 @@ unix:!macx {
     mime.path = $$PREFIX/share/mime/packages
     target.path = $$PREFIX/bin
     INSTALLS += target maps csv symbols locale icon desktop mime
+}
+
+android {
+    include($$OPENSSL_PATH/openssl.pri)
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/pkg/android
+    DISTFILES += \
+        pkg/android/AndroidManifest.xml \
+        pkg/android/build.gradle \
+        pkg/android/res/values/libs.xml
 }

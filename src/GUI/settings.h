@@ -1,6 +1,8 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <QtGlobal>
+
 #define IMPERIAL_UNITS() \
 	(QLocale::system().measurementSystem() == QLocale::ImperialSystem)
 #define POSITION_PLUGIN() \
@@ -19,7 +21,11 @@
 #define COORDINATES_SETTING               "coordinates"
 #define COORDINATES_DEFAULT               DecimalDegrees
 #define SHOW_TOOLBARS_SETTING             "toolbar"
+#ifdef Q_OS_ANDROID
+#define SHOW_TOOLBARS_DEFAULT             false
+#else // Q_OS_ANDROID
 #define SHOW_TOOLBARS_DEFAULT             true
+#endif // Q_OS_ANDROID
 
 #define GRAPH_SETTINGS_GROUP              "Graph"
 #define SHOW_GRAPHS_SETTING               "show"

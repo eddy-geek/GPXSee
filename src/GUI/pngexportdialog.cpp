@@ -15,6 +15,11 @@
 PNGExportDialog::PNGExportDialog(PNGExport &exp, QWidget *parent)
   : QDialog(parent), _export(exp)
 {
+#ifdef Q_OS_ANDROID
+	setWindowFlags(Qt::Window);
+	setWindowState(Qt::WindowFullScreen);
+#endif /* Q_OS_ANDROID */
+
 	_fileSelect = new FileSelectWidget();
 	_fileSelect->setFilter(tr("PNG files") + " (*.png);;" + tr("All files")
 	  + " (*)");

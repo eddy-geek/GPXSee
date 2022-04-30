@@ -659,14 +659,18 @@ void GUI::createMenus()
 	coordinatesMenu->addAction(_degreesMinutesAction);
 	coordinatesMenu->addAction(_dmsAction);
 	settingsMenu->addSeparator();
+#ifndef Q_OS_ANDROID
 	settingsMenu->addAction(_showToolbarsAction);
 	settingsMenu->addAction(_fullscreenAction);
 	settingsMenu->addSeparator();
+#endif // Q_OS_ANDROID
 	settingsMenu->addAction(_openOptionsAction);
 
 	QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(_pathsAction);
+#ifndef Q_OS_ANDROID
 	helpMenu->addAction(_keysAction);
+#endif // Q_OS_ANDROID
 	helpMenu->addSeparator();
 	helpMenu->addAction(_aboutAction);
 }
@@ -713,7 +717,7 @@ void GUI::createMapView()
 	_mapView = new MapView(_map, _poi, 0, this);
 	_mapView->setSizePolicy(QSizePolicy(QSizePolicy::Ignored,
 	  QSizePolicy::Expanding));
-	_mapView->setMinimumHeight(200);
+	_mapView->setMinimumHeight(100);
 #ifdef Q_OS_WIN32
 	_mapView->setFrameShape(QFrame::NoFrame);
 #endif // Q_OS_WIN32
@@ -765,7 +769,16 @@ void GUI::about()
 	QUrl homepage(APP_HOMEPAGE);
 
 	msgBox.setWindowTitle(tr("About GPXSee"));
-	msgBox.setText("<h2>" + QString(APP_NAME) + "</h2><p><p>" + tr("Version %1")
+#ifdef Q_OS_ANDROID
+	msgBox.setText("<h2>" + QString(APP_NAME) + "</h2><p>" + tr("Version %1")
+	  .arg(QString(APP_VERSION) + " (" + QSysInfo::buildCpuArchitecture()
+	  + ", Qt " + QT_VERSION_STR + ")") + "</p><p>"
+	  + tr("GPXSee is distributed under the terms of the GNU General Public "
+	  "License version 3. For more info about GPXSee visit the project "
+	  "homepage at %1.").arg("<a href=\"" + homepage.toString() + "\">"
+	  + homepage.toString(QUrl::RemoveScheme).mid(2) + "</a>") + "</p>");
+#else // Q_OS_ANDROID
+	msgBox.setText("<h2>" + QString(APP_NAME) + "</h2><p>" + tr("Version %1")
 	  .arg(QString(APP_VERSION) + " (" + QSysInfo::buildCpuArchitecture()
 	  + ", Qt " + QT_VERSION_STR + ")") + "</p>");
 	msgBox.setInformativeText("<table width=\"300\"><tr><td>"
@@ -778,6 +791,7 @@ void GUI::about()
 	QIcon icon = msgBox.windowIcon();
 	QSize size = icon.actualSize(QSize(64, 64));
 	msgBox.setIconPixmap(icon.pixmap(size));
+#endif // Q_OS_ANDROID
 
 	msgBox.exec();
 }
@@ -826,6 +840,23 @@ void GUI::paths()
 	QMessageBox msgBox(this);
 
 	msgBox.setWindowTitle(tr("Paths"));
+#ifdef Q_OS_ANDROID
+	msgBox.setText(
+	  + "<b>" + tr("Map directory:") + "</b><br>"
+	  + QDir::cleanPath(ProgramPaths::mapDir(true))	+ "<br><b>"
+	  + tr("POI directory:") + "</b><br>"
+	  + QDir::cleanPath(ProgramPaths::poiDir(true)) + "<br><b>"
+	  + tr("GCS/PCS directory:") + "</b><br>"
+	  + QDir::cleanPath(ProgramPaths::csvDir(true)) + "<br><b>"
+	  + tr("DEM directory:") + "</b><br>"
+	  + QDir::cleanPath(ProgramPaths::demDir(true)) + "<br><b>"
+	  + tr("Styles directory:") + "</b><br>"
+	  + QDir::cleanPath(ProgramPaths::styleDir(true)) + "<br><b>"
+	  + tr("Symbols directory:") + "</b><br>"
+	  + QDir::cleanPath(ProgramPaths::symbolsDir(true)) + "<br><b>"
+	  + tr("Tile cache directory:") + "</b><br>"
+	  + QDir::cleanPath(ProgramPaths::tilesDir()));
+#else // Q_OS_ANDROID
 	msgBox.setText("<h3>" + tr("Paths") + "</h3>");
 	msgBox.setInformativeText(
 	  "<style>td {white-space: pre; padding-right: 1em;}</style><table><tr><td>"
@@ -844,14 +875,20 @@ void GUI::paths()
 	  + tr("Tile cache directory:") + "</td><td><code>"
 	  + QDir::cleanPath(ProgramPaths::tilesDir()) + "</code></td></tr></table>"
 	);
+#endif // Q_OS_ANDROID
 
 	msgBox.exec();
 }
 
 void GUI::openFile()
 {
+#ifdef Q_OS_ANDROID
+	QStringList files(QFileDialog::getOpenFileNames(this, tr("Open file"),
+	  _dataDir));
+#else // Q_OS_ANDROID
 	QStringList files(QFileDialog::getOpenFileNames(this, tr("Open file"),
 	  _dataDir, Data::formats()));
+#endif // Q_OS_ANDROID
 
 	for (int i = 0; i < files.size(); i++)
 		openFile(files.at(i));
@@ -967,8 +1004,13 @@ void GUI::loadData(const Data &data)
 
 void GUI::openPOIFile()
 {
+#ifdef Q_OS_ANDROID
+	QStringList files(QFileDialog::getOpenFileNames(this, tr("Open POI file"),
+	  _poiDir));
+#else // Q_OS_ANDROID
 	QStringList files(QFileDialog::getOpenFileNames(this, tr("Open POI file"),
 	  _poiDir, Data::formats()));
+#endif // Q_OS_ANDROID
 
 	for (int i = 0; i < files.size(); i++)
 		openPOIFile(files.at(i));
@@ -1207,12 +1249,67 @@ void GUI::exportPNGFile()
 void GUI::statistics()
 {
 	QLocale l(QLocale::system());
+	QMessageBox msgBox(this);
+	QString text;
 
+#ifdef Q_OS_ANDROID
+	if (_showTracksAction->isChecked() && _trackCount > 1)
+		text.append("<b>" + tr("Tracks") + ":</b> "
+		  + l.toString(_trackCount) + "<br>");
+	if (_showRoutesAction->isChecked() && _routeCount > 1)
+		text.append("<b>" + tr("Routes") + ":</b> "
+		  + l.toString(_routeCount) + "<br>");
+	if (_showWaypointsAction->isChecked() && _waypointCount > 1)
+		text.append("<b>" + tr("Waypoints") + ":</b> "
+		  + l.toString(_waypointCount) + "<br>");
+	if (_showAreasAction->isChecked() && _areaCount > 1)
+		text.append("<b>" + tr("Areas") + ":</b> "
+		  + l.toString(_areaCount) + "<br>");
+
+	if (_dateRange.first.isValid()) {
+		if (_dateRange.first == _dateRange.second) {
+			QString format = l.dateFormat(QLocale::LongFormat);
+			text.append("<b>" + tr("Date") + ":</b> "
+			  + _dateRange.first.toString(format) + "<br>");
+		} else {
+			QString format = l.dateFormat(QLocale::ShortFormat);
+			text.append("<b>" + tr("Date") + ":</b> "
+			  + QString("%1 - %2").arg(_dateRange.first.toString(format),
+			  _dateRange.second.toString(format)) + "<br>");
+		}
+	}
+
+	if (distance() > 0)
+		text.append("<b>" + tr("Distance") + ":</b> "
+		  + Format::distance(distance(), units()) + "<br>");
+	if (time() > 0) {
+		text.append("<b>" + tr("Time") + ":</b> "
+		  + Format::timeSpan(time()) + "<br>");
+		text.append("<b>" + tr("Moving time") + ":</b> "
+		  + Format::timeSpan(movingTime()) + "<br>");
+	}
+
+	for (int i = 0; i < _tabs.count(); i++) {
+		const GraphTab *tab = _tabs.at(i);
+		if (tab->isEmpty())
+			continue;
+
+		text.append("<div style=\"text-align: center\"><i>" + tab->label() + "</i></div>");
+		for (int j = 0; j < tab->info().size(); j++) {
+			const KV<QString, QString> &kv = tab->info().at(j);
+			text.append("<b>" + kv.key() + ":</b> " + kv.value() + "<br>");
+		}
+	}
+
+	msgBox.setWindowTitle(tr("Statistics"));
+	msgBox.setText(text);
+
+#else // Q_OS_ANDROID
 #ifdef Q_OS_WIN32
-	QString text = "<style>td {white-space: pre; padding-right: 4em;}"
+	text = "<style>td {white-space: pre; padding-right: 4em;}"
 	  "th {text-align: left; padding-top: 0.5em;}</style><table>";
 #else // Q_OS_WIN32
-	QString text = "<style>td {white-space: pre; padding-right: 2em;}"
+	text = "<style>td {white-space: pre; padding-right: 2em;}"
 	  "th {text-align: left; padding-top: 0.5em;}</style><table>";
 #endif // Q_OS_WIN32
 
@@ -1267,11 +1364,11 @@ void GUI::statistics()
 
 	text.append("</table>");
 
-
-	QMessageBox msgBox(this);
 	msgBox.setWindowTitle(tr("Statistics"));
 	msgBox.setText("<h3>" + tr("Statistics") + "</h3>");
 	msgBox.setInformativeText(text);
+#endif // Q_OS_ANDROID
+
 	msgBox.exec();
 }
 
@@ -1583,8 +1680,13 @@ void GUI::showPathMarkerInfo(QAction *action)
 
 void GUI::loadMap()
 {
+#ifdef Q_OS_ANDROID
+	QStringList files(QFileDialog::getOpenFileNames(this, tr("Open map file"),
+	  _mapDir));
+#else // Q_OS_ANDROID
 	QStringList files(QFileDialog::getOpenFileNames(this, tr("Open map file"),
 	  _mapDir, MapList::formats()));
+#endif // Q_OS_ANDROID
 	MapAction *a, *lastReady = 0;
 
 	for (int i = 0; i < files.size(); i++) {
