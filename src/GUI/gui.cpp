@@ -139,8 +139,9 @@ TreeNode<MapAction*> GUI::createMapActionsNode(const TreeNode<Map*> &node, QActi
 			MapAction *a = new MapAction(map, actionGroup);
 			connect(a, &MapAction::loaded, this, &GUI::mapInitialized);
 			tree.addItem(a);
-		} else
-			delete map;
+		} // else
+			// delete map;
+			// map = 0;
 	}
 
 	return tree;
@@ -1737,7 +1738,7 @@ bool GUI::loadMapNode(const TreeNode<Map*> &node, MapAction *&action,
 						QMessageBox::critical(this, APP_NAME, error);
 				}
 
-				delete map;
+				// delete map;
 			} else {  // new valid map
 				valid = true;
 				a = new MapAction(map, _mapsActionGroup);
@@ -1841,7 +1842,7 @@ void GUI::loadMapDirNode(const TreeNode<Map *> &node, QList<MapAction*> &actions
 						QMessageBox::critical(this, APP_NAME, error);
 				}
 
-				delete map;
+				// delete map;
 			} else {
 				a = new MapAction(map, _mapsActionGroup);
 				menu->addAction(a);
