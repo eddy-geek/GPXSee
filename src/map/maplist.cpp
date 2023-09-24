@@ -74,7 +74,7 @@ Map *MapList::loadFile(const QString &path, const Projection &proj, bool *isDir)
 	QStringList errors;
 
 	if ((it = _parsers.find(suffix)) != _parsers.end()) {
-		while (it != _parsers.end() && it.key() == suffix) {
+		while (it != _parsers.end() && it.key() == suffix) { // try each parser supporting this file-extension
 			delete map;
 			map = it.value()(path, proj, isDir);
 			if (map->isValid())
@@ -83,7 +83,7 @@ Map *MapList::loadFile(const QString &path, const Projection &proj, bool *isDir)
 				errors.append(it.key() + ": " + map->errorString());
 			++it;
 		}
-	} else {
+	} else {  // unknow extension, try all parsers
 		for (it = _parsers.begin(); it != _parsers.end(); it++) {
 			map = it.value()(path, proj, isDir);
 			if (map->isValid())
@@ -103,6 +103,7 @@ Map *MapList::loadFile(const QString &path, const Projection &proj, bool *isDir)
 	return map ? map : new InvalidMap(path, "Unknown file format");
 }
 
+/// Load all map files recursively
 TreeNode<Map*> MapList::loadDir(const QString &path, const Projection &proj,
   TreeNode<Map*> *parent)
 {
@@ -124,7 +125,7 @@ TreeNode<Map*> MapList::loadDir(const QString &path, const Projection &proj,
 			TreeNode<Map*> child(loadDir(fi.absoluteFilePath(), proj, &tree));
 			if (!child.isEmpty())
 				tree.addChild(child);
-		} else if (filter().contains("*." + suffix)) {
+		} else if (filter().contains("*." + suffix)) {  // file-extension has a parser
 			bool isDir = false;
 			Map *map = loadFile(fi.absoluteFilePath(), proj, &isDir);
 			if (isDir) {
