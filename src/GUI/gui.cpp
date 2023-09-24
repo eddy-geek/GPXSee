@@ -64,6 +64,7 @@
 GUI::GUI()
 {
 	QString activeMap;
+	QString activeOverlay;
 	QStringList disabledPOIs;
 
 	_poi = new POI(this);
@@ -108,9 +109,9 @@ GUI::GUI()
 	_movingTime = 0;
 	_lastTab = 0;
 
-	readSettings(activeMap, disabledPOIs);
+	readSettings(activeMap, activeOverlay, disabledPOIs);
 
-	loadInitialMaps(activeMap);
+	loadInitialMaps(activeMap, activeOverlay);
 	loadInitialPOIs(disabledPOIs);
 
 	updateGraphTabs();
@@ -2343,6 +2344,7 @@ void GUI::writeSettings()
 	/* Map */
 	settings.beginGroup(SETTINGS_MAP);
 	WRITE(activeMap, _map->name());
+	WRITE(activeOverlay, _overlay ? _overlay->name() : "");
 	WRITE(showMap, _showMapAction->isChecked());
 	WRITE(cursorCoordinates, _showCoordinatesAction->isChecked());
 	settings.endGroup();
@@ -2498,7 +2500,7 @@ void GUI::writeSettings()
 	settings.endGroup();
 }
 
-void GUI::readSettings(QString &activeMap, QStringList &disabledPOIs)
+void GUI::readSettings(QString &activeMap, QString &activeOverlay, QStringList &disabledPOIs)
 {
 #define READ(name) \
 	(Settings::name.read(settings))
@@ -2558,6 +2560,7 @@ void GUI::readSettings(QString &activeMap, QStringList &disabledPOIs)
 		_mapView->showCursorCoordinates(true);
 	}
 	activeMap = READ(activeMap).toString();
+	activeOverlay = READ(activeOverlay).toString();
 	settings.endGroup();
 
 	/* Graph */
@@ -2717,6 +2720,8 @@ void GUI::readSettings(QString &activeMap, QStringList &disabledPOIs)
 	_options.palette = Palette(READ(paletteColor).value<QColor>(),
 	  READ(paletteShift).toDouble());
 	_options.mapOpacity = READ(mapOpacity).toInt();
+	_options.overlayOpacity = READ(overlayOpacity).toInt();
+	_options.overlayMode = static_cast<QPainter::CompositionMode>(READ(overlayMode).toInt());
 	_options.backgroundColor = READ(backgroundColor).value<QColor>();
 	_options.crosshairColor = READ(crosshairColor).value<QColor>();
 	_options.infoColor = READ(infoColor).value<QColor>();
@@ -2789,6 +2794,8 @@ void GUI::loadOptions()
 
 	_mapView->setPalette(_options.palette);
 	_mapView->setMapOpacity(_options.mapOpacity);
+	_mapView->setOverlayOpacity(_options.overlayOpacity);
+	_mapView->setOverlayMode(_options.overlayMode);
 	_mapView->setBackgroundColor(_options.backgroundColor);
 	_mapView->setCrosshairColor(_options.crosshairColor);
 	_mapView->setInfoColor(_options.infoColor);
@@ -2888,6 +2895,8 @@ void GUI::updateOptions(const Options &options)
 
 	SET_VIEW_OPTION(palette, setPalette);
 	SET_VIEW_OPTION(mapOpacity, setMapOpacity);
+	SET_VIEW_OPTION(overlayOpacity, setOverlayOpacity);
+	SET_VIEW_OPTION(overlayMode, setOverlayMode);
 	SET_VIEW_OPTION(backgroundColor, setBackgroundColor);
 	SET_VIEW_OPTION(trackWidth, setTrackWidth);
 	SET_VIEW_OPTION(routeWidth, setRouteWidth);
