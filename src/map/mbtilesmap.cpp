@@ -280,7 +280,7 @@ int MBTilesMap::zoomFit(const QSize &size, const RectC &rect)
 		}
 	}
 
-	return _zi;
+	return _zooms.at(_zi);
 }
 
 qreal MBTilesMap::resolution(const QRectF &rect)
@@ -293,7 +293,7 @@ int MBTilesMap::zoomIn()
 	cancelJobs(false);
 
 	_zi = qMin(_zi + 1, _zooms.size() - 1);
-	return _zi;
+	return _zooms.at(_zi);
 }
 
 int MBTilesMap::zoomOut()
@@ -301,7 +301,7 @@ int MBTilesMap::zoomOut()
 	cancelJobs(false);
 
 	_zi = qMax(_zi - 1, 0);
-	return _zi;
+	return _zooms.at(_zi);
 }
 
 qreal MBTilesMap::coordinatesRatio() const
