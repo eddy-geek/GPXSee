@@ -331,8 +331,9 @@ int MapView::fitMapZoom() const
 	RectC br = _tr | _rr | _wr | _ar;
 
 	int z = _map->zoomFit(viewport()->size() - QSize(2*MARGIN, 2*MARGIN),
-	  br.isNull() ? _map->llBounds() : br);
-	_overlay->setZoom(z);
+	br.isNull() ? _map->llBounds() : br);
+	if (_overlay)
+		_overlay->setZoom(z);
 	return z;
 }
 
@@ -619,9 +620,8 @@ void MapView::zoom(int zoom, const QPoint &pos, bool shift)
 		Coordinates c = _map->xy2ll(mapToScene(pos));
 		int oz = _map->zoom();
 		int nz = (zoom > 0) ? _map->zoomIn() : _map->zoomOut();
-		if (_overlay) {
+		if (_overlay)
 			_overlay->setZoom(_map->zoom());
-		}
 
 		if (nz != oz) {
 			rescale();

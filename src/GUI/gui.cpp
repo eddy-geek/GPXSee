@@ -143,7 +143,7 @@ TreeNode<MapAction*> GUI::createMapActionsNode(const TreeNode<Map*> &node, QActi
 
 	for (int i = 0; i < node.items().size(); i++) {
 		Map *map = node.items().at(i);
-		if (map->isValid()) {
+		if (map && map->isValid()) {
 			MapAction *a = new MapAction(map, actionGroup);
 			connect(a, &MapAction::loaded, this, &GUI::mapInitialized);
 			tree.addItem(a);
@@ -828,6 +828,7 @@ void GUI::createToolBars()
 void GUI::createMapView()
 {
 	_map = new EmptyMap(this);
+	_overlay = new EmptyMap(this);
 	_mapView = new MapView(_map, _poi, this);
 	_mapView->setSizePolicy(QSizePolicy(QSizePolicy::Ignored,
 	  QSizePolicy::Expanding));
