@@ -89,6 +89,7 @@ private slots:
 	void showDEMTiles();
 
 	void mapChanged(QAction *action);
+	void overlayChanged(QAction *action);
 	void graphChanged(int);
 	void poiFileChecked(QAction *action);
 	void selectAllPOIs();
@@ -135,7 +136,8 @@ private:
 	qreal graphPlotHeight(const QRectF &rect, qreal ratio);
 
 	TreeNode<POIAction*> createPOIActionsNode(const TreeNode<QString> &node);
-	TreeNode<MapAction*> createMapActionsNode(const TreeNode<Map*> &node);
+	TreeNode<MapAction*> createMapActionsNode(const TreeNode<Map*> &node, QActionGroup* actionGroup);
+
 	void createMapNodeMenu(const TreeNode<MapAction*> &node, QMenu *menu,
 	  QAction *action = 0);
 	void createPOINodeMenu(const TreeNode<POIAction*> &node, QMenu *menu,
@@ -161,7 +163,7 @@ private:
 	bool loadMapNode(const TreeNode<Map*> &node, MapAction *&action,
 	  const QList<QAction*> &existingActions, int &showError);
 	void loadMapDirNode(const TreeNode<Map*> &node, QList<MapAction*> &actions,
-	  QMenu *menu, const QList<QAction*> &existingActions, int &showError);
+	  QMenu *menu, QMenu *ovrmenu, const QList<QAction*> &existingActions, int &showError);
 	void updateStatusBarInfo();
 	void updateWindowTitle();
 	bool updateGraphTabs();
@@ -182,12 +184,13 @@ private:
 	qreal time() const;
 	qreal movingTime() const;
 	QAction *mapAction(const QString &name);
+	QAction *overlayAction(const QString &name);
 	QGeoPositionInfoSource *positionSource(const Options &options);
 	void readSettings(QString &activeMap, QStringList &disabledPOIs,
 	  QStringList &recentFiles);
 
 	void reloadMap();
-	void loadInitialMaps(const QString &selected);
+	void loadInitialMaps(const QString &selected, const QString &selectedOverlay);
 	void loadInitialPOIs(const QStringList &disabled);
 #ifndef Q_OS_ANDROID
 	void loadRecentFiles(const QStringList &files);
@@ -214,6 +217,7 @@ private:
 #endif // Q_OS_ANDROID
 	QMenu *_poiMenu;
 	QMenu *_mapMenu;
+	QMenu *_overlayMenu;
 #ifndef Q_OS_ANDROID
 	QMenu *_recentFilesMenu;
 #endif // Q_OS_ANDROID
@@ -221,6 +225,7 @@ private:
 	QActionGroup *_fileActionGroup;
 	QActionGroup *_navigationActionGroup;
 	QActionGroup *_mapsActionGroup;
+	QActionGroup *_overlaysActionGroup;
 	QActionGroup *_poisActionGroup;
 #ifndef Q_OS_ANDROID
 	QActionGroup *_recentFilesActionGroup;
@@ -299,6 +304,7 @@ private:
 	QAction *_showDEMTilesAction;
 	QAction *_drawHillShadingAction;
 	QAction *_mapsEnd;
+	QAction *_overlaysEnd;
 	QAction *_poisEnd;
 #ifndef Q_OS_ANDROID
 	QAction *_clearRecentFilesAction;
