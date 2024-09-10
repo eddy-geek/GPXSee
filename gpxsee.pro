@@ -6,6 +6,8 @@ unix:!macx:!android {
 VERSION = 13.24
 
 
+CONFIG += debug
+
 QT += core \
     gui \
     gui-private \
