@@ -18,6 +18,7 @@ public:
 	CoordinatesFormat format() const {return _format;}
 
 	void setCoordinates(const Coordinates &c, qreal elevation = NAN);
+	void setExtraCoord(const QPointF &xy, const QRectF &bounds, int zoom, qreal res);
 	void setFormat(CoordinatesFormat format);
 	void setUnits(Units units);
 	void setDigitalZoom(qreal zoom);
@@ -31,6 +32,11 @@ private:
 
 	Coordinates _c;
 	qreal _ele;
+	QPointF _xy;
+	QRectF _bounds;
+	int _zoom;
+	qreal _res;
+
 	CoordinatesFormat _format;
 	Units _units;
 	QRectF _boundingRect;

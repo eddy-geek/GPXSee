@@ -59,6 +59,19 @@ void CoordinatesItem::setCoordinates(const Coordinates &c, qreal elevation)
 	update();
 }
 
+void CoordinatesItem::setExtraCoord(const QPointF &xy, const QRectF &bounds, int zoom, qreal res)
+{
+	prepareGeometryChange();
+
+	_xy = xy;
+	_bounds = bounds;
+	_zoom = zoom;
+	_res = res;
+
+	updateBoundingRect();
+	update();
+}
+
 void CoordinatesItem::setFormat(CoordinatesFormat format)
 {
 	prepareGeometryChange();
@@ -83,9 +96,27 @@ void CoordinatesItem::setDigitalZoom(qreal zoom)
 
 QString CoordinatesItem::text() const
 {
-	return (std::isnan(_ele))
-	  ? Format::coordinates(_c, _format)
-	  : Format::coordinates(_c, _format) + ", " + Format::elevation(_ele, _units);
+	QString text;
+	auto out = QTextStream(&text);
+	out << Format::coordinates(_c, _format);
+	if (!std::isnan(_ele))
+		out << ", " << Format::elevation(_ele, _units);
+	if (!_xy.isNull())
+		out << " ; xy=" << _xy.x() << ',' << _xy.y();
+	if (!_bounds.isNull())
+		out << " ; b=" << round(_bounds.x()) << ',' << round(_bounds.y()) << ", " << round(_bounds.width()) << ',' << round(_bounds.height());
+	if (_zoom != -1)
+		out << " ; z=" << _zoom;
+	if (_res)
+		out << " ; r=" << _res;
+
+	return text;
+	// QString separator = ", ";
+	// QString result = list.join(separator);
+
+	// return (std::isnan(_ele))
+	//   ? Format::coordinates(_c, _format)
+	//   : Format::coordinates(_c, _format) + ", " + Format::elevation(_ele, _units);
 }
 
 void CoordinatesItem::updateBoundingRect()

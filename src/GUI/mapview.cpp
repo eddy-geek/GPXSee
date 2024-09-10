@@ -1229,6 +1229,7 @@ void MapView::mouseMoveEvent(QMouseEvent *event)
 	if (_cursorCoordinates->isVisible()) {
 		Coordinates c(_map->xy2ll(mapToScene(event->pos())));
 		_cursorCoordinates->setCoordinates(c, _map->elevation(c));
+		_cursorCoordinates->setExtraCoord(_map->ll2xy(c), _map->bounds(), _map->zoom(), _map->resolution(_map->bounds()));
 	}
 
 	QGraphicsView::mouseMoveEvent(event);
