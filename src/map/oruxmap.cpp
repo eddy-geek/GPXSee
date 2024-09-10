@@ -389,7 +389,8 @@ bool OruxMap::readXML(const QString &path, const QString &dir)
 OruxMap::OruxMap(const QString &fileName, QObject *parent)
   : Map(fileName, parent), _zoom(0), _mapRatio(1.0), _valid(false)
 {
-	QFileInfo fi(fileName);
+	QFileInfo fis(fileName);
+	QFileInfo fi(fis.canonicalPath());
 	QDir dir(fi.absoluteDir());
 
 	if (!readXML(fileName))
