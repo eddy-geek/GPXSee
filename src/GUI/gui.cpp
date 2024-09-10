@@ -1766,6 +1766,12 @@ static MapAction *findMapAction(const QList<QAction*> &mapActions,
 	return 0;
 }
 
+/// @brief
+/// @param node containing parsed maps
+/// @param action outputs last valid map
+/// @param silent whether to notify of failures
+/// @param existingActions already available maps, to avoid dupes
+/// @return if at least one valid map was found
 bool GUI::loadMapNode(const TreeNode<Map*> &node, MapAction *&action,
   const QList<QAction*> &existingActions, int &showError)
 {
